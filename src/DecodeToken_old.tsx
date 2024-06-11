@@ -1,46 +1,6 @@
 import { postData } from './apicomponent';
 import jwt from 'jsonwebtoken';
 import { exec } from 'child_process';
-import papi, { logger } from '@papi/backend';
-
-logger.info('UserAuth is importing!');
-
-interface UserAuthData {
-  username: string;
-  password: string;
-  token: string;
-}
-
-class UserAuthManager {
-  private authData: UserAuthData | null = null;
-
-  constructor(private username: string, private password: string) {}
-
-  async authenticate() {
-    try {
-      // Assuming postData() takes username and password and returns a JWT token
-      const token = await postData(this.username, this.password);
-      this.authData = {
-        username: this.username,
-        password: this.password,
-        token,
-      };
-      // Send data to main.ts for storage using papi.storage
-      await papi.storage.writeUserData(
-        { username: this.username },
-        JSON.stringify(this.authData)
-      );
-      return token;
-    } catch (error) {
-      logger.error('Authentication failed:', error);
-      throw error;
-    }
-  }
-
-  getToken() {
-    return this.authData?.token;
-  }
-}
 
 const runMainScript = () => {
   console.log('Executing script...');
@@ -54,10 +14,9 @@ const runMainScript = () => {
   });
 };
 
-export const decodeAndSchedule = async (username: string, password: string) => {
+const decodeAndSchedule = async () => {
   try {
-    const authManager = new UserAuthManager(username, password);
-    const token = await authManager.authenticate();
+    const token = await postData();
     const decoded: any = jwt.decode(token) as any;
     if (decoded && decoded.exp) {
       const expirationTimeMs = decoded.exp * 1000; // Convert seconds to milliseconds
@@ -78,3 +37,7 @@ export const decodeAndSchedule = async (username: string, password: string) => {
     console.error(`Error retrieving or decoding token: ${error.message}`);
   }
 };
+
+
+
+decodeAndSchedule();

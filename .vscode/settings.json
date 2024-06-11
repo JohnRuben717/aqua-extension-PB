@@ -53,5 +53,6 @@
       "backgroundColor": "none",
       "overviewRulerColor": "#6cf5ff60"
     }
-  ]
+  ],
+  "CodeGPT.apiKey": "OpenAI"
 }

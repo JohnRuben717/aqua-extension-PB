@@ -163,6 +163,13 @@ const configBase: webpack.Configuration = {
         '../paranext-core/node_modules/react-data-grid',
       ),
     },
+    fallback: {
+      "crypto": require.resolve("crypto-browserify"),
+      "util": require.resolve("util/"),
+      "stream": require.resolve("stream-browserify"),
+      "child_process": false,
+      "vm": require.resolve("vm-browserify")
+    }
   },
 };
 
