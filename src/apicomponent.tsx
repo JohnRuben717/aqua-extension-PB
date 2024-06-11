@@ -1,7 +1,5 @@
 // apicomponent.tsx
 
-import axios from 'axios';
-
 const postData = async (): Promise<string> => {
   const url = 'https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/token';
   const username = 'platform.bible.test';
@@ -16,20 +14,26 @@ const postData = async (): Promise<string> => {
 
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
-    'accept': 'application/json'
+    accept: 'application/json',
   };
 
   try {
-    const response = await axios.post(url, params, { headers });
-    return response.data.access_token;
-  } catch (error) {
-    if (error.response) {
-      console.error('Error:', error.response.data.detail);
-    } else if (error.request) {
-      console.error('Error:', error.request);
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: params.toString(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    throw error;
+
+    const data = await response.json();
+    return data.access_token;
+  } catch (error) {
+    // eslint-disable-next-line no-type-assertion/no-type-assertion
+    throw new Error(error as string);
   }
 };
 
-export { postData };
+export default postData;

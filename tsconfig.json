@@ -67,11 +67,6 @@
     // This allows us to use path aliases in ts-node
     "require": ["tsconfig-paths/register"],
     // This allows us to run webpack even if there are type errors in the webpack configs. Optional
-    "transpileOnly": true,
-    "compilerOptions": {
-      "target": "ES5",
-      "module": "CommonJS",
-      "sourceMap": true
-    }
+    "transpileOnly": true
   }
 }

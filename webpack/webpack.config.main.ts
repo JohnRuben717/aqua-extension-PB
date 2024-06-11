@@ -32,13 +32,6 @@ const configMain: webpack.Configuration = merge(configBase, {
       // Get web view files from the temp dir where they are built
       new WebViewResolveWebpackPlugin(),
     ],
-    fallback: {
-      "crypto": require.resolve("crypto-browserify"),
-      "util": require.resolve("util/"),
-      "stream": require.resolve("stream-browserify"),
-      "child_process": false,
-      "vm": require.resolve("vm-browserify")
-    }
   },
 
   // #endregion
