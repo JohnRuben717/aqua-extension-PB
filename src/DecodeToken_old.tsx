@@ -1,6 +1,6 @@
-import { postData } from './apicomponent';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { exec } from 'child_process';
+import postData from './apicomponent';
 
 const runMainScript = () => {
   console.log('Executing script...');
@@ -17,7 +17,9 @@ const runMainScript = () => {
 const decodeAndSchedule = async () => {
   try {
     const token = await postData();
-    const decoded: any = jwt.decode(token) as any;
+    // Quick and dirty type fix
+    // eslint-disable-next-line no-type-assertion/no-type-assertion
+    const decoded = jwt.decode(token) as JwtPayload;
     if (decoded && decoded.exp) {
       const expirationTimeMs = decoded.exp * 1000; // Convert seconds to milliseconds
       const currentTimeMs = Date.now();
@@ -27,17 +29,17 @@ const decodeAndSchedule = async () => {
       const reducedDelayMinutes = reducedDelayMs / 60000; // Convert reduced milliseconds to minutes
 
       console.log(`Original scheduling time: ${delayMs} milliseconds (${delayMinutes} minutes).`);
-      console.log(`Adjusted scheduling time: ${reducedDelayMs} milliseconds (${reducedDelayMinutes} minutes).`);
+      console.log(
+        `Adjusted scheduling time: ${reducedDelayMs} milliseconds (${reducedDelayMinutes} minutes).`,
+      );
 
       setTimeout(runMainScript, reducedDelayMs);
     } else {
       console.error('Expiration time not found in token');
     }
   } catch (error) {
-    console.error(`Error retrieving or decoding token: ${error.message}`);
+    console.error(`Error retrieving or decoding token: ${error}`);
   }
 };
-
-
 
 decodeAndSchedule();
