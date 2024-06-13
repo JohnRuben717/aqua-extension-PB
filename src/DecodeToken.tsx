@@ -1,5 +1,5 @@
 // import papi from '@papi/backend';
-import papi from '@papi/frontend';
+// import papi from '@papi/frontend';
 
 import { jwtDecode } from 'jwt-decode';
 
@@ -23,6 +23,7 @@ const postData = async (username: string, password: string): Promise<string> => 
 
   try {
     const response = await papi.fetch(url, {
+    // const response = await fetch(url, {
       method: 'POST',
       headers,
       body: params.toString(),
@@ -74,4 +75,4 @@ const decodeAndSchedule = async (username: string, password: string) => {
 };
 
 export default decodeAndSchedule;
-// decodeAndSchedule('platform.bible.test', 'coOpacqF6tW6');
+decodeAndSchedule('platform.bible.test', 'coOpacqF6tW6');
