@@ -16,7 +16,7 @@ const postData = async (username: string, password: string): Promise<string> => 
     'Content-Type': 'application/x-www-form-urlencoded',
     Accept: 'application/json',
   };
-
+ 
   try {
     const response = await fetch(url, {
       method: 'POST',
