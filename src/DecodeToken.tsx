@@ -1,93 +1,167 @@
-// import jwt, { JwtPayload } from 'jsonwebtoken';
-import { logger } from '@papi/frontend';
-import postData from './apicomponent';
+// import { logger } from '@papi/frontend';
+// import { jwtDecode } from 'jwt-decode';
 
-logger.info('UserAuth is importing!');
+// console.log('UserAuth is importing!');
+// logger.info('Token Auto is loaded!');
 
-interface UserAuthData {
-  username: string;
-  password: string;
-  token: string;
-}
+// const postData = async (username: string, password: string): Promise<string> => {
+//   const url = 'https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/token';
+//   const params = new URLSearchParams();
+//   params.append('grant_type', '');
+//   params.append('username', username);
+//   params.append('password', password);
+//   params.append('scope', '');
+//   params.append('client_id', '');
+//   params.append('client_script', '');
 
-class UserAuthManager {
-  private authData: UserAuthData | undefined = undefined;
+//   const headers = {
+//     'Content-Type': 'application/x-www-form-urlencoded',
+//     Accept: 'application/json',
+//   };
 
-  constructor(
-    private username: string,
-    private password: string,
-  ) {}
+//   try {
+//     const response = await fetch(url, {
+//       method: 'POST',
+//       headers,
+//       body: params.toString(),
+//     });
 
-  async authenticate() {
-    try {
-      // Assuming postData() takes username and password and returns a JWT token
-      // const token = await postData(this.username, this.password);
-      const token = await postData();
-      this.authData = {
-        username: this.username,
-        password: this.password,
-        token,
-      };
-      // Send data to main.ts for storage using papi.storage
-      // This doesn't work here. You need the execution token to call the read of write functions on papi.storage
-      // and that token is only available in main.ts
-      // I don't know how to fix this right now.
-      // await papi.storage.writeUserData({ username: this.username }, JSON.stringify(this.authData));
-      return token;
-    } catch (error) {
-      logger.error('Authentication failed:', error);
-      throw error;
-    }
-  }
-
-  getToken() {
-    return this.authData?.token;
-  }
-}
-
-// What are you trying to do here?
-// const runMainScript = () => {
-//   logger.log('Executing script...');
-//   exec('npx tsx apicomponent.tsx', (error, stdout, stderr) => {
-//     if (error) {
-//       logger.error(`Error: ${error.message}`);
-//       return;
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
 //     }
-//     if (stdout) logger.log(`Output: ${stdout}`);
-//     if (stderr) logger.error(`Error: ${stderr}`);
-//   });
+
+//     const data = await response.json();
+//     console.log('Data:', data.access_token);
+//     return data.access_token;
+//   } catch (error) {
+//     console.error('Error:', error);
+//     throw error;
+//   }
 // };
+
+// const decodeAndSchedule = async () => {
+//   let username = localStorage.getItem('username');
+//   let password = localStorage.getItem('password');
+//   console.log(username, password);
+
+
+//   while (!username || !password) {
+//     console.log('Waiting for username and password...');
+//     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
+//     username = localStorage.getItem('username');
+//     password = localStorage.getItem('password');
+//   }
+
+//   try {
+//     const token = await postData(username, password);
+//     localStorage.setItem('token', token); // Save the token in localStorage
+//     console.log('Token stored:', token);
+//     const decoded = jwtDecode(token);
+//     if (decoded && decoded.exp) {
+//       const expirationTimeMs = decoded.exp * 1000; // Convert seconds to milliseconds
+//       const currentTimeMs = Date.now();
+//       const delayMs = expirationTimeMs - currentTimeMs;
+//       const reducedDelayMs = delayMs - 300000; // Reduce delay by 5 minutes (300000 milliseconds)
+
+//       console.log(`Adjusted scheduling time: ${reducedDelayMs} milliseconds.`);
+
+//       const interval = setInterval(() => {
+//         const now = Date.now();
+//         const timeLeft = reducedDelayMs - now - 300000; // Update time left
+//         if (timeLeft <= 0) {
+//           clearInterval(interval);
+//           decodeAndSchedule(); // Reschedule when time runs out
+//         } else {
+//           console.log(`Time left until next refresh: ${timeLeft} milliseconds.`);
+//         }
+//       }, 60000); // Update every minute
+//     } else {
+//       console.error('Expiration time not found in token');
+//     }
+//   } catch (error) {
+//     console.error(`Error retrieving or decoding token: ${error}`);
+//   }
+// };
+
+// export default decodeAndSchedule;
+// decodeAndSchedule(); // No need to pass username and password here
+
+
+// Filename: apicomponent.tsx
+// import papi from '@papi/backend';
+import papi from '@papi/frontend';
+
+import { jwtDecode } from 'jwt-decode';
+
+console.log('UserAuth is importing!');
+// logger.info('Token Auto is loaded!');
+
+const postData = async (username: string, password: string): Promise<string> => {
+  const url = 'https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/token';
+  const params = new URLSearchParams();
+  params.append('grant_type', '');
+  params.append('username', username);
+  params.append('password', password);
+  params.append('scope', '');
+  params.append('client_id', '');
+  params.append('client_secret', '');
+
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    Accept: 'application/json',
+  };
+
+  try {
+    const response = await papi.fetch(url, {
+      method: 'POST',
+      headers,
+      body: params.toString(),
+      mode: 'no-cors' ,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Data:', data.access_token);
+    return data.access_token;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};
 
 const decodeAndSchedule = async (username: string, password: string) => {
   try {
-    console.log('here');
-    const authManager = new UserAuthManager(username, password);
-    const token = await authManager.authenticate();
-    // Quick and dirty type fix
-    // eslint-disable-next-line no-type-assertion/no-type-assertion
-    // This doesn't work. Use a different package to handle the token
-    // const decoded = jwt.decode(token) as JwtPayload;
-    const decoded = undefined;
+    const token = await postData(username, password);
+    console.log('username:', username, 'password:', password);
+    const decoded = jwtDecode(token);
     if (decoded && decoded.exp) {
       const expirationTimeMs = decoded.exp * 1000; // Convert seconds to milliseconds
       const currentTimeMs = Date.now();
       const delayMs = expirationTimeMs - currentTimeMs;
-      const delayMinutes = delayMs / 60000; // Convert milliseconds to minutes
       const reducedDelayMs = delayMs - 300000; // Reduce delay by 5 minutes (300000 milliseconds)
-      const reducedDelayMinutes = reducedDelayMs / 60000; // Convert reduced milliseconds to minutes
 
-      logger.log(`Original scheduling time: ${delayMs} milliseconds (${delayMinutes} minutes).`);
-      logger.log(
-        `Adjusted scheduling time: ${reducedDelayMs} milliseconds (${reducedDelayMinutes} minutes).`,
-      );
+      console.log(`Adjusted scheduling time: ${reducedDelayMs} milliseconds.`);
 
-      // setTimeout(runMainScript, reducedDelayMs);
+      const interval = setInterval(() => {
+        const now = Date.now();
+        const timeLeft = reducedDelayMs - now - 300000; // Update time left
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          decodeAndSchedule(username, password); // Reschedule when time runs out
+        } else {
+          console.log(`Time left until next refresh: ${timeLeft} milliseconds.`);
+        }
+      }, 60000); // Update every minute
     } else {
-      logger.error('Expiration time not found in token');
+      console.error('Expiration time not found in token');
     }
   } catch (error) {
-    logger.error(`Error retrieving or decoding token: ${error}`);
+    console.error(`Error retrieving or decoding token: ${error}`);
   }
 };
 
 export default decodeAndSchedule;
+// decodeAndSchedule('platform.bible.test', 'coOpacqF6tW6');

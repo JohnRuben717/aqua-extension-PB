@@ -1,25 +1,68 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { exec } from 'child_process';
-import postData from './apicomponent';
+// Filename: apicomponent.tsx
+import { logger } from '@papi/frontend';
+import { jwtDecode } from 'jwt-decode';
 
-const runMainScript = () => {
-  console.log('Executing script...');
-  exec('npx tsx apicomponent.tsx', (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error: ${error.message}`);
-      return;
+logger.info('UserAuth is importing!');
+
+interface UserAuthData {
+  username: string;
+  password: string;
+  token: string;
+}
+ 
+class UserAuthManager {
+  private authData: UserAuthData | undefined = undefined;
+
+  constructor(
+    private username: string,
+    private password: string,
+  ) {}
+
+  async authenticate() {
+    const body = new URLSearchParams({
+      grant_type: '',
+      username: this.username,
+      password: this.password,
+      scope: '',
+      client_id: '',
+      client_secret: '',
+    });
+
+    const response = await fetch('https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/token', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body.toString(),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text(); // Retrieve the error details from the response
+      logger.error(`Authentication failed with status ${response.status}: ${errorBody}`);
+      throw new Error(`Network response was not ok: ${response.status} ${errorBody}`);
     }
-    if (stdout) console.log(`Output: ${stdout}`);
-    if (stderr) console.error(`Error: ${stderr}`);
-  });
-};
 
-const decodeAndSchedule = async () => {
+    const data = await response.json();
+    this.authData = {
+      username: this.username,
+      password: this.password,
+      token: data.access_token,
+    };
+    return data.access_token;
+  }
+
+  getToken() {
+    return this.authData?.token;
+  }
+}
+
+const decodeAndSchedule = async (username: string, password: string) => {
   try {
-    const token = await postData();
-    // Quick and dirty type fix
-    // eslint-disable-next-line no-type-assertion/no-type-assertion
-    const decoded = jwt.decode(token) as JwtPayload;
+    const authManager = new UserAuthManager(username, password);
+    console.log('username:', username, 'password:', password);
+    const token = await authManager.authenticate();
+    const decoded = jwtDecode(token);
     if (decoded && decoded.exp) {
       const expirationTimeMs = decoded.exp * 1000; // Convert seconds to milliseconds
       const currentTimeMs = Date.now();
@@ -28,18 +71,16 @@ const decodeAndSchedule = async () => {
       const reducedDelayMs = delayMs - 300000; // Reduce delay by 5 minutes (300000 milliseconds)
       const reducedDelayMinutes = reducedDelayMs / 60000; // Convert reduced milliseconds to minutes
 
-      console.log(`Original scheduling time: ${delayMs} milliseconds (${delayMinutes} minutes).`);
-      console.log(
+      logger.log(`Original scheduling time: ${delayMs} milliseconds (${delayMinutes} minutes).`);
+      logger.log(
         `Adjusted scheduling time: ${reducedDelayMs} milliseconds (${reducedDelayMinutes} minutes).`,
       );
-
-      setTimeout(runMainScript, reducedDelayMs);
     } else {
-      console.error('Expiration time not found in token');
+      logger.error('Expiration time not found in token');
     }
   } catch (error) {
-    console.error(`Error retrieving or decoding token: ${error}`);
+    logger.error(`Error retrieving or decoding token: ${error}`);
   }
 };
 
-decodeAndSchedule();
+export default decodeAndSchedule;

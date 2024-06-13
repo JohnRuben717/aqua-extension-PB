@@ -6,6 +6,7 @@ global.webViewComponent = function FirstWebView() {
   const [password, setPassword] = useState('');
 
   const handleSubmit = async () => {
+    console.log(username, password);
     await decodeAndSchedule(username, password);
   };
 
