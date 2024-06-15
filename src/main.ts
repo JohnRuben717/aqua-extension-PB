@@ -1,7 +1,9 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext, ExecutionToken, IWebViewProvider } from '@papi/core';
+import type { LoginResponse } from 'paranext-extension-template';
 import webViewContent from './test.web-view?inline';
 import webViewContentStyle from './test.web-view.scss?inline';
+import { postData } from './decodeToken';
 
 logger.info('UserAuth is importing!');
 
@@ -38,15 +40,32 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     password = undefined;
   }
 
-  console.log('Username:', username, 'Password:', password);
-
-  // Now we can feed the username and the password into the webview, if they exist.
-  // See if you can find examples of other extension that help you to do that
+  logger.info(`activate - username: ${username}, password: ${password}`);
+  const loginPromise = papi.commands.registerCommand(
+    'aqua.login',
+    async (user: string, pwd: string): Promise<LoginResponse> => {
+      try {
+        const authToken = await postData(user, pwd);
+        // Store the last successful username/password so we can reuse them for refreshing tokens
+        // TODO: Switch to using encrypted storage when the API is added to PAPI
+        await papi.storage.writeUserData(token, usernameKey, user);
+        await papi.storage.writeUserData(token, passwordKey, pwd);
+        return {
+          loginSucceeded: true,
+          message: `Login succeeded: auth token size = ${authToken.length}`,
+        };
+      } catch (error) {
+        return { loginSucceeded: false, message: `Login failed` };
+      }
+    },
+  );
+  // decodeAndSchedule('platform.bible.test', 'coOpacqF6tW6');
 
   // Pull up the web view on startup
-  papi.webViews.getWebView(webViewProviderType, undefined, { existingId: '?' });
+  await papi.webViews.getWebView(webViewProviderType, undefined, { existingId: '?' });
 
   context.registrations.add(await webViewPromise);
+  context.registrations.add(await loginPromise);
 
   logger.info('UserAuth is finished activating!');
 }
