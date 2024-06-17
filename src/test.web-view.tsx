@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 const usernameKey = 'savedUsername';
 const passwordKey = 'savedPassword';
+const tokenKey = 'savedToken'; // Add a key for the token
 
 global.webViewComponent = function FirstWebView() {
   const [username, setUsername] = useState(localStorage.getItem(usernameKey) ?? '');
@@ -11,7 +12,7 @@ global.webViewComponent = function FirstWebView() {
 
   const handleSubmit = async () => {
     logger.info(`webView - username: ${username}, password: ${password}`);
-    const response = await papi.commands.sendCommand('aqua.login', username, password);
+    const response: LoginResponse = await papi.commands.sendCommand('aqua.login', username, password);
     setLoginMessage(response.message);
     // Note: We don't actually want to save usernames and passwords in local storage!
     // This is just a demonstration of how localStorage can be used in the webView. Since we
@@ -20,6 +21,8 @@ global.webViewComponent = function FirstWebView() {
     if (response.loginSucceeded) {
       localStorage.setItem(usernameKey, username);
       localStorage.setItem(passwordKey, password);
+      logger.info(`Storing token in localStorage: ${response.token}`);
+      localStorage.setItem(tokenKey, response.token!); // Store the token
     }
   };
 

@@ -1,6 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext, ExecutionToken, IWebViewProvider } from '@papi/core';
-import type { LoginResponse } from 'paranext-extension-template';
+import type { LoginResponse as BaseLoginResponse } from 'paranext-extension-template';
 import webViewContent from './test.web-view?inline';
 import webViewContentStyle from './test.web-view.scss?inline';
 import { postData, decodeAndSchedule } from './decodeToken';
@@ -22,6 +22,10 @@ const webViewProviderType = 'FirstWebView.view';
 const usernameKey = 'storedUsername';
 const passwordKey = 'storedPassword';
 const tokenKey = 'storedToken'; // Add a key for the token
+
+export interface LoginResponse extends BaseLoginResponse {
+  token?: string; // Extend the LoginResponse type here
+}
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('UserAuth is activating!');
@@ -60,19 +64,13 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         await papi.storage.writeUserData(token, passwordKey, pwd);
 
         logger.info(`Attempting to store token: ${authToken}`);
-        await papi.storage
-          .writeUserData(token, tokenKey, authToken)
-          .then(() => {
-            logger.info('Token stored successfully.');
-          })
-          .catch((error) => {
-            logger.error(`Error storing token: ${error}`);
-          }); // Store the token with error handling
+        await papi.storage.writeUserData(token, tokenKey, authToken); // Store the token
         logger.info('User data stored successfully.');
 
         return {
           loginSucceeded: true,
           message: `Login succeeded: auth token size = ${authToken.length}`,
+          token: authToken, // Return the token
         };
       } catch (error) {
         logger.error(`Error during login: ${error}`);
