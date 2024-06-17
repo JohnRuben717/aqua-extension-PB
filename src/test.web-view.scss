@@ -1,0 +1,59 @@
+$primary-color: #4caf50;
+$secondary-color: #f2f2f2;
+$border-radius: 5px;
+$input-padding: 10px;
+$input-margin: 10px 0;
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: $secondary-color;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+h1 {
+  color: $primary-color;
+}
+
+.form {
+  background: #fff;
+  padding: 20px;
+  border-radius: $border-radius;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin: $input-margin;
+  text-align: left;
+}
+
+input[type='text'],
+input[type='password'] {
+  width: 100%;
+  padding: $input-padding;
+  margin: $input-margin 0;
+  border: 1px solid #ccc;
+  border-radius: $border-radius;
+  box-sizing: border-box;
+}
+
+button {
+  background-color: $primary-color;
+  color: white;
+  padding: $input-padding;
+  border: none;
+  border-radius: $border-radius;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+}
