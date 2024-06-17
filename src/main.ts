@@ -21,6 +21,7 @@ const webViewProvider: IWebViewProvider = {
 const webViewProviderType = 'FirstWebView.view';
 const usernameKey = 'storedUsername';
 const passwordKey = 'storedPassword';
+const tokenKey = 'storedToken'; // Add a key for the token
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('UserAuth is activating!');
@@ -28,19 +29,23 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   // Register the web view provider
   const webViewPromise = papi.webViewProviders.register(webViewProviderType, webViewProvider);
 
-  // Get existing username and password if they exists
+  // Get existing username, password, and token if they exist
   const token: ExecutionToken = context.executionToken;
   let username: string | undefined;
   let password: string | undefined;
+  let storedToken: string | undefined;
   try {
     username = await papi.storage.readUserData(token, usernameKey);
     password = await papi.storage.readUserData(token, passwordKey);
+    storedToken = await papi.storage.readUserData(token, tokenKey); // Attempt to read the token
   } catch (e) {
     username = undefined;
     password = undefined;
+    storedToken = undefined;
   }
 
-  logger.info(`activate - username: ${username}, password: ${password}`);
+  logger.info(`activate - username: ${username}, password: ${password}, token: ${storedToken}`);
+
   const loginPromise = papi.commands.registerCommand(
     'aqua.login',
     async (user: string, pwd: string): Promise<LoginResponse> => {
@@ -48,20 +53,33 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         const authToken = await postData(user, pwd);
         const decToken = await decodeAndSchedule(user, pwd);
 
-        // Store the last successful username/password so we can reuse them for refreshing tokens
+        logger.info('Storing user data...');
+        // Store the last successful username/password/token
         // TODO: Switch to using encrypted storage when the API is added to PAPI
         await papi.storage.writeUserData(token, usernameKey, user);
         await papi.storage.writeUserData(token, passwordKey, pwd);
+
+        logger.info(`Attempting to store token: ${authToken}`);
+        await papi.storage
+          .writeUserData(token, tokenKey, authToken)
+          .then(() => {
+            logger.info('Token stored successfully.');
+          })
+          .catch((error) => {
+            logger.error(`Error storing token: ${error}`);
+          }); // Store the token with error handling
+        logger.info('User data stored successfully.');
+
         return {
           loginSucceeded: true,
           message: `Login succeeded: auth token size = ${authToken.length}`,
         };
       } catch (error) {
+        logger.error(`Error during login: ${error}`);
         return { loginSucceeded: false, message: `Login failed` };
       }
     },
   );
-  // decodeAndSchedule('platform.bible.test', 'coOpacqF6tW6');
 
   // Pull up the web view on startup
   await papi.webViews.getWebView(webViewProviderType, undefined, { existingId: '?' });
