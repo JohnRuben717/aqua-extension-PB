@@ -25,7 +25,7 @@ global.webViewComponent = function FirstWebView() {
 
   return (
     <div className="form">
-      <h1>Hi! This is my first web view!</h1>
+      <h1>AQuA Login</h1>
       <label>
         Username:
         <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
