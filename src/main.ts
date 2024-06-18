@@ -1,9 +1,9 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext, ExecutionToken, IWebViewProvider } from '@papi/core';
-import type { LoginResponse } from 'paranext-extension-template';
+import type { LoginResponse as BaseLoginResponse } from 'paranext-extension-template';
 import webViewContent from './test.web-view?inline';
 import webViewContentStyle from './test.web-view.scss?inline';
-import { postData } from './decodeToken';
+import { postData, decodeAndSchedule } from './decodeToken';
 
 logger.info('UserAuth is importing!');
 
@@ -13,7 +13,7 @@ const webViewProvider: IWebViewProvider = {
       ...savedWebView,
       content: webViewContent,
       styles: webViewContentStyle,
-      title: 'Aqua Login',
+      title: 'AQuA Login',
     };
   },
 };
@@ -21,6 +21,11 @@ const webViewProvider: IWebViewProvider = {
 const webViewProviderType = 'FirstWebView.view';
 const usernameKey = 'storedUsername';
 const passwordKey = 'storedPassword';
+const tokenKey = 'storedToken'; // Add a key for the token
+
+export interface LoginResponse extends BaseLoginResponse {
+  token?: string; // Extend the LoginResponse type here
+}
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('UserAuth is activating!');
@@ -28,38 +33,51 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   // Register the web view provider
   const webViewPromise = papi.webViewProviders.register(webViewProviderType, webViewProvider);
 
-  // Get existing username and password if they exists
+  // Get existing username, password, and token if they exist
   const token: ExecutionToken = context.executionToken;
   let username: string | undefined;
   let password: string | undefined;
+  let storedToken: string | undefined;
   try {
     username = await papi.storage.readUserData(token, usernameKey);
     password = await papi.storage.readUserData(token, passwordKey);
+    storedToken = await papi.storage.readUserData(token, tokenKey); // Attempt to read the token
   } catch (e) {
     username = undefined;
     password = undefined;
+    storedToken = undefined;
   }
 
-  logger.info(`activate - username: ${username}, password: ${password}`);
+  logger.info(`activate - username: ${username}, password: ${password}, token: ${storedToken}`);
+
   const loginPromise = papi.commands.registerCommand(
     'aqua.login',
     async (user: string, pwd: string): Promise<LoginResponse> => {
       try {
         const authToken = await postData(user, pwd);
-        // Store the last successful username/password so we can reuse them for refreshing tokens
+        const decToken = await decodeAndSchedule(user, pwd);
+
+        logger.info('Storing user data...');
+        // Store the last successful username/password/token
         // TODO: Switch to using encrypted storage when the API is added to PAPI
         await papi.storage.writeUserData(token, usernameKey, user);
         await papi.storage.writeUserData(token, passwordKey, pwd);
+
+        logger.info(`Attempting to store token: ${authToken}`);
+        await papi.storage.writeUserData(token, tokenKey, authToken); // Store the token
+        logger.info('User data stored successfully.');
+
         return {
           loginSucceeded: true,
           message: `Login succeeded: auth token size = ${authToken.length}`,
+          token: authToken, // Return the token
         };
       } catch (error) {
+        logger.error(`Error during login: ${error}`);
         return { loginSucceeded: false, message: `Login failed` };
       }
     },
   );
-  // decodeAndSchedule('platform.bible.test', 'coOpacqF6tW6');
 
   // Pull up the web view on startup
   await papi.webViews.getWebView(webViewProviderType, undefined, { existingId: '?' });
