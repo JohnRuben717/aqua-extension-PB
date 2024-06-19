@@ -1,5 +1,6 @@
 import papi, { logger } from '@papi/frontend';
 import { useState } from 'react';
+import { LoginResponse } from './main';
 
 const usernameKey = 'savedUsername';
 const passwordKey = 'savedPassword';

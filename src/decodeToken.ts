@@ -1,5 +1,7 @@
 import papi, { logger } from '@papi/backend';
 import { jwtDecode } from 'jwt-decode';
+import fs from 'fs/promises';
+import path from 'path';
 
 export const postData = async (username: string, password: string): Promise<string> => {
   const url = 'https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/token';
@@ -64,5 +66,26 @@ export const decodeAndSchedule = async (username: string, password: string) => {
     }
   } catch (error) {
     logger.error(`Error retrieving or decoding token: ${error}`);
+  }
+};
+
+export const fetchDataAndSaveToJson = async (endpoint: string, jsonFilePath: string) => {
+  try {
+    const response = await papi.fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data from ${endpoint}. Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    await fs.writeFile(jsonFilePath, JSON.stringify(data, null, 2));
+    logger.info(`Data successfully written to ${jsonFilePath}`);
+  } catch (error) {
+    logger.error(`Failed to fetch and save data: ${error}`);
   }
 };

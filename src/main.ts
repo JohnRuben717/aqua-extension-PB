@@ -3,7 +3,8 @@ import type { ExecutionActivationContext, ExecutionToken, IWebViewProvider } fro
 import type { LoginResponse as BaseLoginResponse } from 'paranext-extension-template';
 import webViewContent from './test.web-view?inline';
 import webViewContentStyle from './test.web-view.scss?inline';
-import { postData, decodeAndSchedule } from './decodeToken';
+import { postData, decodeAndSchedule, fetchDataAndSaveToJson } from './decodeToken';
+import path from 'path';
 
 logger.info('UserAuth is importing!');
 
@@ -66,6 +67,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         logger.info(`Attempting to store token: ${authToken}`);
         await papi.storage.writeUserData(token, tokenKey, authToken); // Store the token
         logger.info('User data stored successfully.');
+
+        // Fetch data from an API endpoint and save it to a JSON file
+        const apiEndpoint = 'https://example.com/api/data'; // Replace with your actual endpoint
+        const jsonFilePath = path.join(__dirname, 'data.json'); // Define the path to save JSON
+        await fetchDataAndSaveToJson(apiEndpoint, jsonFilePath);
 
         return {
           loginSucceeded: true,
