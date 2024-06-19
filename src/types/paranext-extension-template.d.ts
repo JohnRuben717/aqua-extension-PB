@@ -5,6 +5,7 @@ declare module 'paranext-extension-template' {
   export type LoginResponse = {
     loginSucceeded: boolean;
     message: string;
+    token?: string; 
   };
 }
 
