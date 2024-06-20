@@ -70,7 +70,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
         // Fetch data from an API endpoint and save it to a JSON file
         const apiEndpoint = 'https://example.com/api/data'; // Replace with your actual endpoint
-        const jsonFilePath = path.join(__dirname, 'data.json'); // Define the path to save JSON
+        const jsonFilePath = path.join(__dirname, '..', 'data.json'); // Define the path to save JSON
         await fetchDataAndSaveToJson(apiEndpoint, jsonFilePath);
 
         return {
