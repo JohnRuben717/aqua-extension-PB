@@ -1,4 +1,4 @@
-import papi, { logger } from '@papi/backend';
+import papi from '@papi/backend';
 
 async function fetchAssessment(token: string) {
   const url = 'https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/result?assessment_id=1534';
@@ -15,7 +15,7 @@ async function fetchAssessment(token: string) {
   }
 
   const data = await response.json();
-  logger.info(JSON.stringify(data));
+  // logger.info(JSON.stringify(data));
   localStorage.setItem('assessmentData', JSON.stringify(data));
   return data;
 }
