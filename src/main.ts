@@ -3,8 +3,8 @@ import type { ExecutionActivationContext, ExecutionToken, IWebViewProvider } fro
 import type { LoginResponse as BaseLoginResponse } from 'paranext-extension-template';
 import webViewContent from './test.web-view?inline';
 import webViewContentStyle from './test.web-view.scss?inline';
-import { postData, decodeAndSchedule, fetchDataAndSaveToJson } from './decodeToken';
-import path from 'path';
+import { postData, decodeAndSchedule } from './decodeToken';
+import fetchAssessment from './fetchAssessment';
 
 logger.info('UserAuth is importing!');
 
@@ -26,6 +26,7 @@ const tokenKey = 'storedToken'; // Add a key for the token
 
 export interface LoginResponse extends BaseLoginResponse {
   token?: string; // Extend the LoginResponse type here
+  assessmentData?: any; // Add the assessmentData property
 }
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
@@ -68,15 +69,13 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         await papi.storage.writeUserData(token, tokenKey, authToken); // Store the token
         logger.info('User data stored successfully.');
 
-        // Fetch data from an API endpoint and save it to a JSON file
-        const apiEndpoint = 'https://example.com/api/data'; // Replace with your actual endpoint
-        const jsonFilePath = path.join(__dirname, 'data.json'); // Define the path to save JSON
-        await fetchDataAndSaveToJson(apiEndpoint, jsonFilePath);
-
+        // const fetchAssessmen = await fetchAssessment(token);
+        const fetchAssessments = await fetchAssessment(authToken);
         return {
           loginSucceeded: true,
           message: `Login succeeded: auth token size = ${authToken.length}`,
           token: authToken, // Return the token
+          assessmentData: fetchAssessments,
         };
       } catch (error) {
         logger.error(`Error during login: ${error}`);

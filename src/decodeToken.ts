@@ -1,7 +1,5 @@
 import papi, { logger } from '@papi/backend';
 import { jwtDecode } from 'jwt-decode';
-import fs from 'fs/promises';
-import path from 'path';
 
 export const postData = async (username: string, password: string): Promise<string> => {
   const url = 'https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/token';
@@ -37,12 +35,13 @@ export const postData = async (username: string, password: string): Promise<stri
     throw error;
   }
 };
+// Assuming these are defined elsewhere in your project
 
 export const decodeAndSchedule = async (username: string, password: string) => {
   try {
     const token = await postData(username, password);
     logger.info(`decodeAndSchedule - username: ${username}, password: ${password}`);
-    const decoded = jwtDecode(token);
+    const decoded = jwtDecode(token); // Specify the expected type of the decoded token if known, e.g., jwtDecode<MyToken>(token)
     if (decoded && decoded.exp) {
       const expirationTimeMs = decoded.exp * 1000; // Convert seconds to milliseconds
       const currentTimeMs = Date.now();
@@ -51,41 +50,13 @@ export const decodeAndSchedule = async (username: string, password: string) => {
 
       logger.info(`Adjusted scheduling time: ${reducedDelayMs} milliseconds.`);
 
-      const interval = setInterval(() => {
-        const now = Date.now();
-        const timeLeft = reducedDelayMs - now - 300000; // Update time left
-        if (timeLeft <= 0) {
-          clearInterval(interval);
-          decodeAndSchedule(username, password); // Reschedule when time runs out
-        } else {
-          logger.info(`Time left until next refresh: ${timeLeft} milliseconds.`);
-        }
-      }, 60000); // Update every minute
+      setTimeout(() => {
+        decodeAndSchedule(username, password); // Reschedule when time runs out
+      }, reducedDelayMs);
     } else {
       logger.error('Expiration time not found in token');
     }
   } catch (error) {
     logger.error(`Error retrieving or decoding token: ${error}`);
-  }
-};
-
-export const fetchDataAndSaveToJson = async (endpoint: string, jsonFilePath: string) => {
-  try {
-    const response = await papi.fetch(endpoint, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data from ${endpoint}. Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    await fs.writeFile(jsonFilePath, JSON.stringify(data, null, 2));
-    logger.info(`Data successfully written to ${jsonFilePath}`);
-  } catch (error) {
-    logger.error(`Failed to fetch and save data: ${error}`);
   }
 };

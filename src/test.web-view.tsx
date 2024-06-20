@@ -1,6 +1,5 @@
 import papi, { logger } from '@papi/frontend';
 import { useState } from 'react';
-import { LoginResponse } from './main';
 
 const usernameKey = 'savedUsername';
 const passwordKey = 'savedPassword';
@@ -24,6 +23,7 @@ global.webViewComponent = function FirstWebView() {
       localStorage.setItem(passwordKey, password);
       logger.info(`Storing token in localStorage: ${response.token}`);
       localStorage.setItem(tokenKey, response.token!); // Store the token
+      localStorage.setItem('assessmentData', JSON.stringify(response.assessmentData));
     }
   };
 
