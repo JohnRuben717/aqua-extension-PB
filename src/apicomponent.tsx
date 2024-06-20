@@ -11,7 +11,7 @@ const postData = async (): Promise<string> => {
   params.append('scope', '');
   params.append('client_id', '');
   params.append('client_secret', '');
-
+ 
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     Accept: 'application/json',
