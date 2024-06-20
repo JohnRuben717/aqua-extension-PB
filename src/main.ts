@@ -4,6 +4,7 @@ import type { LoginResponse as BaseLoginResponse } from 'paranext-extension-temp
 import webViewContent from './test.web-view?inline';
 import webViewContentStyle from './test.web-view.scss?inline';
 import { postData, decodeAndSchedule } from './decodeToken';
+import fetchAssessment from './fetchAssessment';
 
 logger.info('UserAuth is importing!');
 
@@ -25,6 +26,7 @@ const tokenKey = 'storedToken'; // Add a key for the token
 
 export interface LoginResponse extends BaseLoginResponse {
   token?: string; // Extend the LoginResponse type here
+  assessmentData?: any; // Add the assessmentData property
 }
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
@@ -67,10 +69,13 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         await papi.storage.writeUserData(token, tokenKey, authToken); // Store the token
         logger.info('User data stored successfully.');
 
+        // const fetchAssessmen = await fetchAssessment(token);
+        const fetchAssessments = await fetchAssessment(authToken);
         return {
           loginSucceeded: true,
           message: `Login succeeded: auth token size = ${authToken.length}`,
           token: authToken, // Return the token
+          assessmentData: fetchAssessments,
         };
       } catch (error) {
         logger.error(`Error during login: ${error}`);
