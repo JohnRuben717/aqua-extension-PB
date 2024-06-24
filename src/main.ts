@@ -1,10 +1,10 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext, ExecutionToken, IWebViewProvider } from '@papi/core';
 import type { LoginResponse as BaseLoginResponse } from 'paranext-extension-template';
-import webViewContent from './test.web-view?inline';
-import webViewContentStyle from './test.web-view.scss?inline';
-import { postData, decodeAndSchedule } from './decodeToken';
-import fetchAssessment from './fetchAssessment';
+import webViewContent from './login.web-view?inline';
+import webViewContentStyle from './login.web-view.scss?inline';
+import { postData, decodeAndSchedule } from './data/decodeToken';
+import fetchAssessment from './data/fetchAssessment';
 
 logger.info('UserAuth is importing!');
 
@@ -26,7 +26,7 @@ const tokenKey = 'storedToken'; // Add a key for the token
 
 export interface LoginResponse extends BaseLoginResponse {
   token?: string; // Extend the LoginResponse type here
-  assessmentData?: any; // Add the assessmentData property
+  assessmentData?: unknown; // Add the assessmentData property
 }
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
@@ -57,7 +57,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (user: string, pwd: string): Promise<LoginResponse> => {
       try {
         const authToken = await postData(user, pwd);
-        const decToken = await decodeAndSchedule(user, pwd);
+        await decodeAndSchedule(user, pwd);
 
         logger.info('Storing user data...');
         // Store the last successful username/password/token
@@ -68,7 +68,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         logger.info(`Attempting to store token: ${authToken}`);
         await papi.storage.writeUserData(token, tokenKey, authToken); // Store the token
         logger.info('User data stored successfully.');
-
 
         // const fetchAssessmen = await fetchAssessment(token);
         const fetchAssessments = await fetchAssessment(authToken);

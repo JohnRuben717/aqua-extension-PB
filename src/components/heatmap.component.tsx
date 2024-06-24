@@ -42,7 +42,6 @@ function HeatmapComponent() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${maxVerses + 1}, 40px)`, gap: '2px', maxWidth: '90vw', overflow: 'auto' }}>
-        <div></div>
         {Array.from({ length: maxVerses }, (_, i) => (
           <div key={i} style={{ textAlign: 'center', fontWeight: 'bold' }}>{i + 1}</div>
         ))}
@@ -61,7 +60,7 @@ function HeatmapComponent() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#fff',
-                  fontSize: '12px'
+                  fontSize: '12px',
                 }}
               >
                 {data[chapter][i + 1] !== undefined ? data[chapter][i + 1].score.toFixed(2) : ''}

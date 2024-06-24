@@ -37,3 +37,7 @@ temp-build
 src/tesetapi.tsx
 src/DecodeToken_old.tsx
 src/apicomponent.tsx
+paranext-core_node_modules_electron-debug_sync_recursive.js
+vendors-paranext-core_node_modules_electron-debug_index_js.js
+vendors-paranext-core_node_modules_electron-devtools-installer_dist_index_js.js
+vendors-paranext-core_node_modules_source-map-support_source-map-support_js.js
