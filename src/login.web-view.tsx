@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from 'paranext-core/lib/platform-bible-react/dist';
 
 global.webViewComponent = function FirstWebView() {
   const [username, setUsername] = useState('');
@@ -6,8 +7,8 @@ global.webViewComponent = function FirstWebView() {
 
   const handleSubmit = () => {
     const credentials = {
-      username: username,
-      password: password,
+      username,
+      password,
     };
     localStorage.setItem('credentials', JSON.stringify(credentials));
     alert('Credentials saved!');
@@ -32,7 +33,7 @@ global.webViewComponent = function FirstWebView() {
       />
       <br />
       <br />
-      <button onClick={handleSubmit}>Submit</button>
+      <Button onClick={handleSubmit}>Submit</Button>
     </div>
   );
 };

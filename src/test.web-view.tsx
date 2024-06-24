@@ -1,50 +1,39 @@
-import papi, { logger } from '@papi/frontend';
 import { useState } from 'react';
-import { LoginResponse } from './main';
+// import { Button } from 'paranext-core/lib/platform-bible-react/dist';
 
-const usernameKey = 'savedUsername';
-const passwordKey = 'savedPassword';
-const tokenKey = 'savedToken'; // Add a key for the token
+import HeatmapComponent from './heatmap';
+import Login from './logincomponent';
 
 global.webViewComponent = function FirstWebView() {
-  const [username, setUsername] = useState(localStorage.getItem(usernameKey) ?? '');
-  const [password, setPassword] = useState(localStorage.getItem(passwordKey) ?? '');
-  const [loginMessage, setLoginMessage] = useState('');
-
-  const handleSubmit = async () => {
-    logger.info(`webView - username: ${username}, password: ${password}`);
-    const response: LoginResponse = await papi.commands.sendCommand('aqua.login', username, password);
-    setLoginMessage(response.message);
-    // Note: We don't actually want to save usernames and passwords in local storage!
-    // This is just a demonstration of how localStorage can be used in the webView. Since we
-    // are storing things on the backend and generating tokens there, we can keep all credentials
-    // on the backend and just use webViews for displaying data.
-    if (response.loginSucceeded) {
-      localStorage.setItem(usernameKey, username);
-      localStorage.setItem(passwordKey, password);
-      logger.info(`Storing token in localStorage: ${response.token}`);
-      localStorage.setItem(tokenKey, response.token!); // Store the token
-    }
-  };
+  const [activeMenu, setActiveMenu] = useState('login'); // Default page set to Login
 
   return (
-    <div className="form">
-      <h1>AQuA Login</h1>
-      <label>
-        Username:
-        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-      </label>
-      <br />
-      <label>
-        Password:
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      </label>
-      <br />
-      <button type="submit" onClick={handleSubmit}>
-        Submit
-      </button>
-      <br />
-      <label>{loginMessage}</label>
+    <div>
+      <div
+        className="hamburger-menu"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: '25%',
+          backgroundColor: '#333',
+          color: 'white',
+          padding: '10px',
+          width: '50%',
+          zIndex: 1000, // Ensures the menu stays on top
+        }}
+      >
+        <button onClick={() => setActiveMenu('heatmap')}>Heatmap</button>
+        <button onClick={() => setActiveMenu('login')}>Login</button>
+      </div>
+      <div
+        className="content"
+        style={{
+          paddingTop: '50px', // Ensures content does not overlap menu
+        }}
+      >
+        {activeMenu === 'heatmap' && <HeatmapComponent />}
+        {activeMenu === 'login' && <Login />}
+      </div>
     </div>
   );
 };
