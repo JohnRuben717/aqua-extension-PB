@@ -69,6 +69,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         await papi.storage.writeUserData(token, tokenKey, authToken); // Store the token
         logger.info('User data stored successfully.');
 
+
         // const fetchAssessmen = await fetchAssessment(token);
         const fetchAssessments = await fetchAssessment(authToken);
         return {
