@@ -1,6 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext, ExecutionToken, IWebViewProvider } from '@papi/core';
-import type { LoginResponse as BaseLoginResponse } from 'paranext-extension-template';
+import type { LoginResponse } from 'aqua-extension';
 import webViewContent from './login.web-view?inline';
 import webViewContentStyle from './login.web-view.scss?inline';
 import { postData, decodeAndSchedule } from './data/decodeToken';
@@ -23,11 +23,6 @@ const webViewProviderType = 'FirstWebView.view';
 const usernameKey = 'storedUsername';
 const passwordKey = 'storedPassword';
 const tokenKey = 'storedToken'; // Add a key for the token
-
-export interface LoginResponse extends BaseLoginResponse {
-  token?: string; // Extend the LoginResponse type here
-  assessmentData?: unknown; // Add the assessmentData property
-}
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('UserAuth is activating!');

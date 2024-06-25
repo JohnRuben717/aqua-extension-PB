@@ -4,7 +4,6 @@ import { Button } from 'platform-bible-react';
 import HeatmapComponent from './components/heatmap.component';
 import Login from './components/login.component';
 
-
 global.webViewComponent = function FirstWebView() {
   const [activeMenu, setActiveMenu] = useState('login'); // Default page set to Login
 
@@ -23,7 +22,6 @@ global.webViewComponent = function FirstWebView() {
           zIndex: 1000, // Ensures the menu stays on top
         }}
       >
-
         <Button onClick={() => setActiveMenu('heatmap')}>Heatmap</Button>
         <Button onClick={() => setActiveMenu('login')}>Login</Button>
       </div>

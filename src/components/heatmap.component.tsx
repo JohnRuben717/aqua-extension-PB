@@ -17,8 +17,8 @@ function HeatmapComponent() {
       const parsedData: { results: Result[] } = JSON.parse(storedData);
       const organizedData: { [chapter: string]: { [verse: string]: Result } } = {};
 
-      parsedData.results.forEach(result => {
-        const [chapter, verse] = result.vref.split(':').map(part => part.replace(/^\D+/g, ''));
+      parsedData.results.forEach((result) => {
+        const [chapter, verse] = result.vref.split(':').map((part) => part.replace(/^\D+/g, ''));
         if (!organizedData[chapter]) {
           organizedData[chapter] = {};
         }
@@ -34,18 +34,26 @@ function HeatmapComponent() {
     return `rgb(${255 - value}, ${255 - value}, ${value})`; // blue-ish color for heatmap
   };
 
-  const chapters = Object.keys(data).sort((a, b) => parseInt(a) - parseInt(b));
-  const maxVerses = Math.max(
-    ...Object.values(data).map(verses => Object.keys(verses).length)
-  );
+  const chapters = Object.keys(data).sort((a, b) => +a - +b);
+  const maxVerses = Math.max(...Object.values(data).map((verses) => Object.keys(verses).length));
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${maxVerses + 1}, 40px)`, gap: '2px', maxWidth: '90vw', overflow: 'auto' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${maxVerses + 1}, 40px)`,
+          gap: '2px',
+          maxWidth: '90vw',
+          overflow: 'auto',
+        }}
+      >
         {Array.from({ length: maxVerses }, (_, i) => (
-          <div key={i} style={{ textAlign: 'center', fontWeight: 'bold' }}>{i + 1}</div>
+          <div key={i} style={{ textAlign: 'center', fontWeight: 'bold' }}>
+            {i + 1}
+          </div>
         ))}
-        {chapters.map(chapter => (
+        {chapters.map((chapter) => (
           <React.Fragment key={`chapter-fragment-${chapter}`}>
             <div style={{ textAlign: 'center', fontWeight: 'bold' }}>{chapter}</div>
             {Array.from({ length: maxVerses }, (_, i) => (
@@ -55,7 +63,10 @@ function HeatmapComponent() {
                 style={{
                   width: '40px',
                   height: '40px',
-                  backgroundColor: data[chapter][i + 1] !== undefined ? getColor(data[chapter][i + 1].score) : '#eee',
+                  backgroundColor:
+                    data[chapter][i + 1] !== undefined
+                      ? getColor(data[chapter][i + 1].score)
+                      : '#eee',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',

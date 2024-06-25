@@ -1,4 +1,5 @@
 import papi, { logger } from '@papi/frontend';
+import type { LoginResponse } from 'aqua-extension';
 import { useState } from 'react';
 
 const usernameKey = 'savedUsername';
@@ -26,7 +27,7 @@ function Login() {
       localStorage.setItem(usernameKey, username);
       localStorage.setItem(passwordKey, password);
       logger.info(`Storing token in localStorage: ${response.token}`);
-      localStorage.setItem(tokenKey, response.token!); // Store the token
+      if (response.token) localStorage.setItem(tokenKey, response.token); // Store the token
       localStorage.setItem('assessmentData', JSON.stringify(response.assessmentData));
     }
   };
@@ -53,6 +54,6 @@ function Login() {
       </div>
     </div>
   );
-};
+}
 
 export default Login;
