@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from 'paranext-core/lib/platform-bible-react/dist';
+import { Button } from 'platform-bible-react/dist';
 
 global.webViewComponent = function FirstWebView() {
   const [username, setUsername] = useState('');
