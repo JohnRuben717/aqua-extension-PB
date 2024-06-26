@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import {XValuesForY, XYValuesInfoInfoContext, XValue} from './xyvaluesinfo.context';
+import { XValuesForY, XYValuesInfoInfoContext, XValue } from './xyvaluesinfo.context';
 import { ApexOptions } from "apexcharts";
 import Chart from 'react-apexcharts';
 import { DualSlider } from "./dualslider.component";
@@ -34,6 +34,11 @@ const rightSliderInitialPosition = -1;
 const minimumSliderGap = .01;
 const sliderStep = .01;
 
+const fetchAssessmentData = () => {
+  const data = localStorage.getItem('assessmentData');
+  return data ? JSON.parse(data) : null;
+}
+
 export function ChartsFromXYValuesComponent({
   chartXYValues,
   initialSliderPositionsStdDeviationMultiple = 3,
@@ -41,7 +46,7 @@ export function ChartsFromXYValuesComponent({
   leftColor = "#FF0000",
   middleColor = "#AC9F3C",
   rightColor = "#0000FF",
-  tooltipFormatter = ({series, seriesIndex, dataPointIndex, w}): string =>
+  tooltipFormatter = ({ series, seriesIndex, dataPointIndex, w }): string =>
     `<div class="arrow_box">
       <span>${series[seriesIndex][dataPointIndex]}</span>
     </div>`,
@@ -53,7 +58,7 @@ export function ChartsFromXYValuesComponent({
         shadeIntensity: 1,
         colorScale: {
           ranges: [
-             {
+            {
               from: 0,
               to: .3,
               color: '#FF0000',
@@ -85,8 +90,6 @@ export function ChartsFromXYValuesComponent({
     xaxis: {
       labels: {
         show: false,
-        //hideOverlappingLabels: false,
-        //showDuplicates: true,
       }
     },
     tooltip: {
@@ -96,37 +99,54 @@ export function ChartsFromXYValuesComponent({
       },
       y: {
         show: false,
-        // formatter: (value, {series, seriesIndex, dataPointIndex, w}) => `Chapter: ${ w.globals.labels[seriesIndex]}, Verse: ${ w.globals.labels[dataPointIndex]}, Score: ${value}`,
       }
     },
   } as ApexOptions
-} : ChartProps) {
+}: ChartProps) {
 
-  //required context
+  // Fetch data from localStorage
+  const assessmentData = fetchAssessmentData();
+  if (!assessmentData || !assessmentData.results) {
+    return <div>No data available</div>;
+  }
+
+  // Transform assessment data to the format required for the heatmap
+  const transformedData: XValuesForY[] = assessmentData.results.map((result: any) => ({
+    yString: result.vref,
+    values: [{
+      x: result.id.toString(),
+      value: result.score,
+      originalDatum: result
+    }]
+  }));
+
+  // Required context
   const xyValuesInfo = useContext(XYValuesInfoInfoContext);
-  chartXYValues.xyValuesInfo = xyValuesInfo;
+  chartXYValues.xyValuesInfo = { ...xyValuesInfo, xValuesForYs: transformedData };
 
-  //state
+  // State
   const [chartState, setChartState] = useState({
     leftSliderPosition: leftSliderInitialPosition,
     rightSliderPosition: rightSliderInitialPosition,
     sliderMode: initialSliderMode,
   } as ChartState);
 
-  // re-calculates left and right slider position if namedValuesInfo.id changed (otherwise leaves them alone)
-  if (chartXYValues.xyValuesInfo.id !== chartState.namedValuesInfoId)
-    setChartState({...chartState,
-      leftSliderPosition: chartXYValues.xyValuesInfo.mean - chartXYValues.xyValuesInfo.standardDeviation * initialSliderPositionsStdDeviationMultiple / 2,
+  // Re-calculates left and right slider position if namedValuesInfo.id changed (otherwise leaves them alone)
+  if (chartXYValues.xyValuesInfo.id !== chartState.namedValuesInfoId) {
+    setChartState({
+      ...chartState,
+      leftSliderPosition: chartXYValues.xyValuesInfo.min - chartXYValues.xyValuesInfo.standardDeviation * initialSliderPositionsStdDeviationMultiple / 2,
       rightSliderPosition: chartState.sliderMode === SliderMode.OutsideRange ?
         chartXYValues.xyValuesInfo.max :
         chartXYValues.xyValuesInfo.mean + chartXYValues.xyValuesInfo.standardDeviation * initialSliderPositionsStdDeviationMultiple / 2,
       namedValuesInfoId: chartXYValues.xyValuesInfo.id
     });
+  }
 
   function getChartOptions(chartOptions: ApexOptions, min: number, max: number, leftSliderPosition: number, rightSliderPosition: number): ApexOptions {
     const colorScale = chartOptions.plotOptions?.heatmap?.colorScale;
     if (colorScale)
-      colorScale.ranges= [
+      colorScale.ranges = [
         {
           from: -100000,
           to: min - .0000001,
@@ -152,7 +172,7 @@ export function ChartsFromXYValuesComponent({
           name: 'high',
         },
       ];
-    return {...chartOptions};
+    return { ...chartOptions };
   }
 
   function rangeFilter(
@@ -160,27 +180,27 @@ export function ChartsFromXYValuesComponent({
     leftPosition: number,
     rightPosition: number,
     namedValuesCollection: XValuesForY[]) {
-      if (chartState.sliderMode === SliderMode.OutsideRange)
-        return namedValuesCollection.map(namedValues => ({
-          name: namedValues.yString,
-          data: namedValues.values.map(value => ({
-            x: value.x.toString(),
-            y: value.value >= rightPosition || value.value <= leftPosition ? value.value : min - 1
-          }))
-        }));
-      else
-        return namedValuesCollection.map(namedValues => ({
-          name: namedValues.yString,
-          data: namedValues.values.map(value => ({
-            x: value.x,
-            value: value.value,
-            originalDatum: value.originalDatum
-          } as XValue))
-        }));
+    if (chartState.sliderMode === SliderMode.OutsideRange)
+      return namedValuesCollection.map(namedValues => ({
+        name: namedValues.yString,
+        data: namedValues.values.map(value => ({
+          x: value.x.toString(),
+          y: value.value >= rightPosition || value.value <= leftPosition ? value.value : min - 1
+        }))
+      }));
+    else
+      return namedValuesCollection.map(namedValues => ({
+        name: namedValues.yString,
+        data: namedValues.values.map(value => ({
+          x: value.x,
+          value: value.value,
+          originalDatum: value.originalDatum
+        } as XValue))
+      }));
   }
 
   useEffect(() => {
-    // mark the focused cell
+    // Mark the focused cell
     const ij = chartXYValues.getIJFromXY(chartXYValues.xyValuesInfo.highlightedXY);
     if (ij) {
       const item = document.querySelector(`.apexcharts-heatmap-rect[i='${ij.i}'][j='${ij.j}']`);
@@ -191,12 +211,12 @@ export function ChartsFromXYValuesComponent({
         console.error(`couldn't find element class '.apexcharts-heatmap-rect' with i=${ij.i} and j=${ij.j}`);
       }
     }
-    // add event handlers to each cell so parent can be informed when a cell is clicked.
+    // Add event handlers to each cell so parent can be informed when a cell is clicked.
     document.querySelectorAll(`.apexcharts-heatmap-rect`).forEach(element => element.addEventListener('click', (event) => {
       const i = parseInt((event.target as HTMLElement).getAttribute('i') ?? '-1');
       const j = parseInt((event.target as HTMLElement).getAttribute('j') ?? '-1');
       if (i > -1 && j > -1) {
-        const xyOriginalDatum = chartXYValues.getXYOriginalDatumFromIJ({i:i, j:j});
+        const xyOriginalDatum = chartXYValues.getXYOriginalDatumFromIJ({ i: i, j: j });
         if (xyOriginalDatum)
           chartXYValues.xyValuesInfo.onXYSelected(xyOriginalDatum);
       }
@@ -216,9 +236,9 @@ export function ChartsFromXYValuesComponent({
                 sliderMode: chartState.sliderMode === SliderMode.OutsideRange ?
                   SliderMode.Ranges :
                   SliderMode.OutsideRange
-                })
+              })
             }>
-                {chartState.sliderMode === SliderMode.OutsideRange ? 'Outside Range' : 'Range'}
+              {chartState.sliderMode === SliderMode.OutsideRange ? 'Outside Range' : 'Range'}
             </button>&nbsp;
           </span>
         </div> */}
@@ -236,7 +256,7 @@ export function ChartsFromXYValuesComponent({
             mean={chartXYValues.xyValuesInfo.mean}
             onRangeChanged={
               (leftPosition: number, rightPosition: number): void => {
-                setChartState({...chartState, leftSliderPosition: leftPosition, rightSliderPosition: rightPosition});
+                setChartState({ ...chartState, leftSliderPosition: leftPosition, rightSliderPosition: rightPosition });
               }
             }
           />
@@ -250,10 +270,10 @@ export function ChartsFromXYValuesComponent({
               chartState.leftSliderPosition,
               chartState.rightSliderPosition)}
             series={ChartXYValues.toSeries(chartState.sliderMode === SliderMode.OutsideRange ?
-                chartXYValues.getXValuesForYOutsideRange(
-                  chartState.leftSliderPosition,
-                  chartState.rightSliderPosition) :
-                chartXYValues.xyValuesInfo.xValuesForYs)}
+              chartXYValues.getXValuesForYOutsideRange(
+                chartState.leftSliderPosition,
+                chartState.rightSliderPosition) :
+              chartXYValues.xyValuesInfo.xValuesForYs)}
             type="heatmap"
             height={800} />
         </div>

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { ChartsFromXYValuesComponent } from './charts.xyvalues.component';
+import  { ChartsFromXYValuesComponent }  from './charts.xyvalues.component';
 import { AquaMode, AquaState, AquaStateManager } from './aqua.statemanager';
 import { CurrentVerseContext } from './currentverse.context';
 import { Canon } from '@sillsdev/scripture';

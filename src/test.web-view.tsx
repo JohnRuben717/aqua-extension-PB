@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import HeatmapComponent from './heatmap';
 import Login from './logincomponent';
+import { ChartsFromXYValuesComponent } from './charts.xyvalues.component';
 
 global.webViewComponent = function FirstWebView() {
   const [activeMenu, setActiveMenu] = useState('login'); // Default page set to Login
@@ -31,7 +32,7 @@ global.webViewComponent = function FirstWebView() {
           paddingTop: '50px', // Ensures content does not overlap menu
         }}
       >
-        {activeMenu === 'heatmap' && <HeatmapComponent />}
+        {activeMenu === 'heatmap' && <ChartsFromXYValuesComponent chartXYValues={undefined} />}
         {activeMenu === 'login' && <Login />}
       </div>
     </div>
