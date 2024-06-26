@@ -40,7 +40,7 @@ export const decodeAndSchedule = async (username: string, password: string) => {
   try {
     const token = await postData(username, password);
     logger.info(`decodeAndSchedule - username: ${username}, password: ${password}`);
-    const decoded = jwtDecode(token);
+    const decoded = jwtDecode(token); 
     if (decoded && decoded.exp) {
       const expirationTimeMs = decoded.exp * 1000; // Convert seconds to milliseconds
       const currentTimeMs = Date.now();
@@ -49,16 +49,9 @@ export const decodeAndSchedule = async (username: string, password: string) => {
 
       logger.info(`Adjusted scheduling time: ${reducedDelayMs} milliseconds.`);
 
-      const interval = setInterval(() => {
-        const now = Date.now();
-        const timeLeft = reducedDelayMs - now - 300000; // Update time left
-        if (timeLeft <= 0) {
-          clearInterval(interval);
-          decodeAndSchedule(username, password); // Reschedule when time runs out
-        } else {
-          logger.info(`Time left until next refresh: ${timeLeft} milliseconds.`);
-        }
-      }, 60000); // Update every minute
+      setTimeout(() => {
+        decodeAndSchedule(username, password); // Reschedule when time runs out
+      }, reducedDelayMs);
     } else {
       logger.error('Expiration time not found in token');
     }

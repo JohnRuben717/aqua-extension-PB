@@ -1,9 +1,9 @@
 {
-  "name": "paranext-extension-template",
+  "name": "aqua-extension",
   "private": true,
   "version": "0.0.1",
   "main": "src/main.js",
-  "types": "src/types/paranext-extension-template.d.ts",
+  "types": "src/types/aqua-extension.d.ts",
   "author": "Paranext",
   "license": "MIT",
   "scripts": {
@@ -34,7 +34,8 @@
     "@sillsdev/scripture": "^1.4.3",
     "axios": "^1.7.2",
     "execa": "^9.2.0",
-    "jwt-decode": "^4.0.0"
+    "jwt-decode": "^4.0.0",
+    "react-heatmap-grid": "^0.9.0"
   },
   "devDependencies": {
     "@swc/core": "^1.4.11",

@@ -1,28 +1,29 @@
 import papi, { logger } from '@papi/frontend';
+import type { LoginResponse } from 'aqua-extension';
 import { useState } from 'react';
 
 const usernameKey = 'savedUsername';
 const passwordKey = 'savedPassword';
-const tokenKey = 'savedToken'; // Add a key for the token
 
-global.webViewComponent = function FirstWebView() {
+function Login() {
   const [username, setUsername] = useState(localStorage.getItem(usernameKey) ?? '');
   const [password, setPassword] = useState(localStorage.getItem(passwordKey) ?? '');
   const [loginMessage, setLoginMessage] = useState('');
 
   const handleSubmit = async () => {
     logger.info(`webView - username: ${username}, password: ${password}`);
-    const response: LoginResponse = await papi.commands.sendCommand('aqua.login', username, password);
+    const response: LoginResponse = await papi.commands.sendCommand(
+      'aqua.login',
+      username,
+      password,
+    );
     setLoginMessage(response.message);
-    // Note: We don't actually want to save usernames and passwords in local storage!
-    // This is just a demonstration of how localStorage can be used in the webView. Since we
-    // are storing things on the backend and generating tokens there, we can keep all credentials
-    // on the backend and just use webViews for displaying data.
     if (response.loginSucceeded) {
       localStorage.setItem(usernameKey, username);
       localStorage.setItem(passwordKey, password);
       logger.info(`Storing token in localStorage: ${response.token}`);
-      localStorage.setItem(tokenKey, response.token!); // Store the token
+      localStorage.setItem('assessmentData', JSON.stringify(response.assessmentData));
+      localStorage.setItem('versionData', JSON.stringify(response.versionData));
     }
   };
 
@@ -46,4 +47,6 @@ global.webViewComponent = function FirstWebView() {
       <label>{loginMessage}</label>
     </div>
   );
-};
+}
+
+export default Login;

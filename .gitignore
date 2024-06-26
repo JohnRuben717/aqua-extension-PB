@@ -34,6 +34,3 @@ dist-ssr
 temp-build
 
 # #endregion
-src/tesetapi.tsx
-src/DecodeToken_old.tsx
-src/apicomponent.tsx

@@ -1,16 +1,19 @@
-declare module 'paranext-extension-template' {
+declare module 'aqua-extension' {
   // Add extension types exposed on the papi for other extensions to use here
   // More instructions can be found in the README
 
   export type LoginResponse = {
     loginSucceeded: boolean;
     message: string;
-    token?: string; 
+    token?: string;
+    assessmentData?: unknown; 
+    versionData?: unknown; 
+
   };
 }
 
 declare module 'papi-shared-types' {
-  import type { LoginResponse } from 'paranext-extension-template';
+  import type { LoginResponse } from 'aqua-extension';
 
   export interface CommandHandlers {
     /**
