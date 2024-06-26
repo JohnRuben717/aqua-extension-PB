@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 const usernameKey = 'savedUsername';
 const passwordKey = 'savedPassword';
-const tokenKey = 'savedToken'; // Add a key for the token
+// const tokenKey = 'savedToken'; // Add a key for the token
 
 function Login() {
   const [username, setUsername] = useState(localStorage.getItem(usernameKey) ?? '');
