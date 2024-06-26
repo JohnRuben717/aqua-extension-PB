@@ -1,6 +1,6 @@
 import papi, { logger } from '@papi/backend';
 
-async function fetchversion(token: string) {
+async function fetchVersion(token: string) {
   const url = 'https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/version';
   // logger.info(`fetchAssessment - token: ${JSON.stringify(token)}`);
   const response = await papi.fetch(url, {
@@ -21,4 +21,4 @@ async function fetchversion(token: string) {
   return data;
 }
 
-export default fetchversion;
+export default fetchVersion;

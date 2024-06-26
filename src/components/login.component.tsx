@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 const usernameKey = 'savedUsername';
 const passwordKey = 'savedPassword';
-// const tokenKey = 'savedToken'; // Add a key for the token
 
 function Login() {
   const [username, setUsername] = useState(localStorage.getItem(usernameKey) ?? '');
@@ -23,7 +22,6 @@ function Login() {
       localStorage.setItem(usernameKey, username);
       localStorage.setItem(passwordKey, password);
       logger.info(`Storing token in localStorage: ${response.token}`);
-      // if (response.token) localStorage.setItem(tokenKey, response.token); // Store the token
       localStorage.setItem('assessmentData', JSON.stringify(response.assessmentData));
       localStorage.setItem('versionData', JSON.stringify(response.versionData));
     }

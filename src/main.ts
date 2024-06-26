@@ -5,7 +5,7 @@ import webViewContent from './login.web-view?inline';
 import webViewContentStyle from './login.web-view.scss?inline';
 import { postData, decodeAndSchedule } from './data/handle-token';
 import fetchAssessment from './data/fetch-assessment';
-import fetchversion from './data/fetch-version';
+import fetchVersion from './data/fetch-version';
 
 logger.info('UserAuth is importing!');
 
@@ -68,7 +68,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         logger.info('User data stored successfully.');
 
         // const fetchAssessmen = await fetchAssessment(token);
-        const fetchversions = await fetchversion(authToken);
+        const fetchversions = await fetchVersion(authToken);
         const fetchAssessments = await fetchAssessment(authToken);
         return {
           loginSucceeded: true,
