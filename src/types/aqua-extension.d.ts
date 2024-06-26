@@ -7,6 +7,8 @@ declare module 'aqua-extension' {
     message: string;
     token?: string;
     assessmentData?: unknown; // Add the assessmentData property
+    versionData?: unknown; // Add the assessmentData property
+
   };
 }
 
