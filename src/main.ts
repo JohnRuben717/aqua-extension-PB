@@ -5,7 +5,7 @@ import webViewContent from './login.web-view?inline';
 import webViewContentStyle from './login.web-view.scss?inline';
 import { postData, decodeAndSchedule } from './data/handle-token';
 import fetchAssessment from './data/fetch-assessment';
-import fetchBible from './data/fetch-Bible';
+import fetchversion from './data/fetch-version';
 
 logger.info('UserAuth is importing!');
 
@@ -68,14 +68,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         logger.info('User data stored successfully.');
 
         // const fetchAssessmen = await fetchAssessment(token);
-        const fetchBibles = await fetchBible(authToken);
+        const fetchversions = await fetchversion(authToken);
         const fetchAssessments = await fetchAssessment(authToken);
         return {
           loginSucceeded: true,
           message: `Login succeeded: auth token size = ${authToken.length}`,
           token: authToken, // Return the token
           assessmentData: fetchAssessments,
-          versionData: fetchBibles,
+          versionData: fetchversions,
         };
       } catch (error) {
         logger.error(`Error during login: ${error}`);

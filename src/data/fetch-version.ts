@@ -1,6 +1,6 @@
 import papi, { logger } from '@papi/backend';
 
-async function fetchBible(token: string) {
+async function fetchversion(token: string) {
   const url = 'https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/version';
   // logger.info(`fetchAssessment - token: ${JSON.stringify(token)}`);
   const response = await papi.fetch(url, {
@@ -21,4 +21,4 @@ async function fetchBible(token: string) {
   return data;
 }
 
-export default fetchBible;
+export default fetchversion;

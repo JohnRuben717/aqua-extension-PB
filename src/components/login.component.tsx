@@ -23,7 +23,7 @@ function Login() {
       localStorage.setItem(usernameKey, username);
       localStorage.setItem(passwordKey, password);
       logger.info(`Storing token in localStorage: ${response.token}`);
-      if (response.token) localStorage.setItem(tokenKey, response.token); // Store the token
+      // if (response.token) localStorage.setItem(tokenKey, response.token); // Store the token
       localStorage.setItem('assessmentData', JSON.stringify(response.assessmentData));
       localStorage.setItem('versionData', JSON.stringify(response.versionData));
     }
