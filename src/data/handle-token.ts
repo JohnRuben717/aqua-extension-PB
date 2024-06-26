@@ -35,13 +35,12 @@ export const postData = async (username: string, password: string): Promise<stri
     throw error;
   }
 };
-// Assuming these are defined elsewhere in your project
 
 export const decodeAndSchedule = async (username: string, password: string) => {
   try {
     const token = await postData(username, password);
     logger.info(`decodeAndSchedule - username: ${username}, password: ${password}`);
-    const decoded = jwtDecode(token); // Specify the expected type of the decoded token if known, e.g., jwtDecode<MyToken>(token)
+    const decoded = jwtDecode(token); 
     if (decoded && decoded.exp) {
       const expirationTimeMs = decoded.exp * 1000; // Convert seconds to milliseconds
       const currentTimeMs = Date.now();

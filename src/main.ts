@@ -3,8 +3,8 @@ import type { ExecutionActivationContext, ExecutionToken, IWebViewProvider } fro
 import type { LoginResponse } from 'aqua-extension';
 import webViewContent from './login.web-view?inline';
 import webViewContentStyle from './login.web-view.scss?inline';
-import { postData, decodeAndSchedule } from './data/decodeToken';
-import fetchAssessment from './data/fetchAssessment';
+import { postData, decodeAndSchedule } from './data/handle-token';
+import fetchAssessment from './data/fetch-assessment';
 
 logger.info('UserAuth is importing!');
 

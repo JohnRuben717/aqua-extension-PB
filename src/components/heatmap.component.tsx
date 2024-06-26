@@ -8,7 +8,7 @@ interface Result {
   // other fields omitted for brevity
 }
 
-function HeatmapComponent() {
+function Heatmap() {
   const [data, setData] = useState<{ [chapter: string]: { [verse: string]: Result } }>({});
 
   useEffect(() => {
@@ -84,4 +84,4 @@ function HeatmapComponent() {
   );
 }
 
-export default HeatmapComponent;
+export default Heatmap;

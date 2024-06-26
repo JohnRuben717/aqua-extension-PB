@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from 'platform-bible-react';
 
-import HeatmapComponent from './components/heatmap.component';
+import Heatmap from './components/heatmap.component';
 import Login from './components/login.component';
 
 global.webViewComponent = function FirstWebView() {
@@ -31,7 +31,7 @@ global.webViewComponent = function FirstWebView() {
           paddingTop: '50px', // Ensures content does not overlap menu
         }}
       >
-        {activeMenu === 'heatmap' && <HeatmapComponent />}
+        {activeMenu === 'heatmap' && <Heatmap />}
         {activeMenu === 'login' && <Login />}
       </div>
     </div>
