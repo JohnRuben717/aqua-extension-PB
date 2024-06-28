@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { SketchPicker } from 'react-color'; // Importing the color picker
+import ReactSlider from 'react-slider'; // Importing the range slider
 import assessmentData1 from './assessment.json';
 import assessmentData2 from './assessment2.json';
 
@@ -32,6 +34,9 @@ const organizeData = (results: Result[]): OrganizedData => {
 const Heatmap: React.FC = () => {
   const [data, setData] = useState<OrganizedData>({});
   const [selectedVref, setSelectedVref] = useState<string | null>(null);
+  const [baseColor, setBaseColor] = useState<string>('#0000ff'); // Base color state
+  const [colorPickerVisible, setColorPickerVisible] = useState<boolean>(false); // Color picker visibility state
+  const [scoreRange, setScoreRange] = useState<[number, number]>([0, 1]); // Score range state
 
   useEffect(() => {
     const data1 = organizeData(assessmentData1.results);
@@ -43,9 +48,17 @@ const Heatmap: React.FC = () => {
     setData(mergedData);
   }, []);
 
+  // Function to adjust color based on the score
   const getColor = (score: number): string => {
+    if (score < scoreRange[0] || score > scoreRange[1]) {
+      return '#d3d3d3'; // Grey color for outliers
+    }
     const value = Math.floor(score * 255);
-    return `rgb(${255 - value}, ${255 - value}, ${value})`; // blue-ish color for heatmap
+    const color = baseColor.slice(1); // Remove the '#' from the color
+    const r = parseInt(color.slice(0, 2), 16);
+    const g = parseInt(color.slice(2, 4), 16);
+    const b = parseInt(color.slice(4, 6), 16);
+    return `rgb(${Math.floor(r * (1 - score))}, ${Math.floor(g * (1 - score))}, ${Math.floor(b * (1 - score))})`;
   };
 
   const chapters = Object.keys(data).sort((a, b) => +a - +b);
@@ -55,6 +68,19 @@ const Heatmap: React.FC = () => {
     setSelectedVref(vref);
   };
 
+  const handleColorChange = (color: any) => {
+    setBaseColor(color.hex);
+    setColorPickerVisible(false); // Close color picker after selecting a color
+  };
+
+  const toggleColorPicker = () => {
+    setColorPickerVisible(!colorPickerVisible);
+  };
+
+  const handleRangeChange = (values: number[]) => {
+    setScoreRange([values[0], values[1]]);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {selectedVref && (
@@ -62,6 +88,33 @@ const Heatmap: React.FC = () => {
           Selected Vref: {selectedVref}
         </div>
       )}
+      <button
+        onClick={toggleColorPicker}
+        style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}
+      >
+        {colorPickerVisible ? '←' : 'Change Heatmap Color'}
+      </button>
+      {colorPickerVisible && (
+        <div style={{ marginBottom: '20px' }}>
+          <SketchPicker color={baseColor} onChangeComplete={handleColorChange} />
+        </div>
+      )}
+      <div style={{ width: '80%', marginBottom: '20px' }}>
+        <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
+          Score Range: {scoreRange[0]} - {scoreRange[1]}
+        </div>
+        <ReactSlider
+          className="horizontal-slider"
+          thumbClassName="thumb"
+          trackClassName="track"
+          defaultValue={[0, 1]}
+          min={0}
+          max={1}
+          step={0.01}
+          onChange={handleRangeChange}
+          value={scoreRange}
+        />
+      </div>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div
           style={{

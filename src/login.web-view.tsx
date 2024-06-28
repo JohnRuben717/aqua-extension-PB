@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Button } from 'platform-bible-react';
 
-import Heatmap from './components/heatmap.component';
+import HeatmapComponent from './components/heatmap.component';
 import Login from './components/login.component';
+
 
 global.webViewComponent = function FirstWebView() {
   const [activeMenu, setActiveMenu] = useState('login'); // Default page set to Login
@@ -12,16 +13,17 @@ global.webViewComponent = function FirstWebView() {
       <div
         className="hamburger-menu"
         style={{
-          position: 'fixed',
-          top: 0,
-          left: '25%',
+          position: 'static',
+          top: 5,
+          left: '10%',
           backgroundColor: '#333',
           color: 'white',
           padding: '10px',
-          width: '50%',
-          zIndex: 1000, // Ensures the menu stays on top
+          width: '30%',
+          zIndex: 100, // Ensures the menu stays on top
         }}
       >
+
         <Button onClick={() => setActiveMenu('heatmap')}>Heatmap</Button>
         <Button onClick={() => setActiveMenu('login')}>Login</Button>
       </div>
@@ -31,7 +33,7 @@ global.webViewComponent = function FirstWebView() {
           paddingTop: '50px', // Ensures content does not overlap menu
         }}
       >
-        {activeMenu === 'heatmap' && <Heatmap />}
+        {activeMenu === 'heatmap' && <HeatmapComponent />}
         {activeMenu === 'login' && <Login />}
       </div>
     </div>
