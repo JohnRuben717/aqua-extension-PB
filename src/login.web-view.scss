@@ -13,6 +13,10 @@ body {
   height: 100vh;
   margin: 0;
 }
+.menu-button {
+  flex: 1 1 auto;
+  padding: 5px;
+}
 
 h1 {
   color: $primary-color;
