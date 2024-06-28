@@ -9,7 +9,6 @@ interface Result {
   assessment_id: number;
   vref: string;
   score: number;
-  // other fields omitted for brevity
 }
 
 interface OrganizedData {
@@ -18,7 +17,7 @@ interface OrganizedData {
   };
 }
 
-// Utility function to organize data from JSON files
+// function to organize data from JSON files
 const organizeData = (results: Result[]): OrganizedData => {
   const organizedData: OrganizedData = {};
   results.forEach((result) => {
@@ -113,6 +112,32 @@ const Heatmap: React.FC = () => {
           step={0.01}
           onChange={handleRangeChange}
           value={scoreRange}
+          renderTrack={(props, state) => (
+            <div
+              {...props}
+              style={{
+                ...props.style,
+                height: '10px',
+                background: state.index === 2 ? '#ddd' : '#bbb',
+                borderRadius: '5px',
+              }}
+            />
+          )}
+          renderThumb={(props) => (
+            <div
+              {...props}
+              style={{
+                ...props.style,
+                height: '20px',
+                width: '20px',
+                backgroundColor: '#999',
+                borderRadius: '50%',
+                cursor: 'grab',
+                top: '-5px',
+                boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.5)',
+              }}
+            />
+          )}
         />
       </div>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
