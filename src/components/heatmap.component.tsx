@@ -49,8 +49,8 @@ const Heatmap: React.FC = () => {
 
   // Function to adjust color based on the score
   const getColor = (score: number): string => {
-    if (score < scoreRange[0] || score > scoreRange[1]) {
-      return '#d3d3d3'; // Grey color for outliers
+    if (score >= scoreRange[0] && score <= scoreRange[1]) {
+      return `rgba(211, 211, 211, ${(1 - score) * 0.5})`; // Transparent grey for in-range values
     }
     const value = Math.floor(score * 255);
     const color = baseColor.slice(1); // Remove the '#' from the color
@@ -118,7 +118,9 @@ const Heatmap: React.FC = () => {
               style={{
                 ...props.style,
                 height: '10px',
-                background: state.index === 2 ? '#ddd' : '#bbb',
+                background: state.index === 0
+                  ? `linear-gradient(to right, rgba(0, 0, 255, 1), rgba(0, 0, 255, 0.5), rgba(0, 0, 255, 0))`
+                  : `linear-gradient(to right, rgba(255, 0, 0, 0), rgba(255, 0, 0, 0.5), rgba(255, 0, 0, 1))`,
                 borderRadius: '5px',
               }}
             />
