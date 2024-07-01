@@ -2,7 +2,6 @@ import papi, { logger } from '@papi/backend';
 
 async function fetchVersion(token: string) {
   const url = 'https://tmv9bz5v4q.us-east-1.awsapprunner.com/latest/version';
-  // logger.info(`fetchAssessment - token: ${JSON.stringify(token)}`);
   const response = await papi.fetch(url, {
     method: 'GET',
     headers: {
@@ -15,10 +14,16 @@ async function fetchVersion(token: string) {
   }
 
   const data = await response.json();
-  // logger.info(JSON.stringify(data));
-  logger.log("Storing the data");
+  logger.log('Storing version data');
+
+  // Store the entire version data
   localStorage.setItem('versionData', JSON.stringify(data));
-  return data;
+
+  // Extract and store all IDs
+  const ids = data.map((item: { id: unknown; }) => item.id); // Assuming data is an array of objects
+  localStorage.setItem('versionIds', JSON.stringify(ids));
+
+  return { data, ids };
 }
 
 export default fetchVersion;

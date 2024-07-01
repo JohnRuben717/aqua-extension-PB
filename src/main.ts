@@ -4,8 +4,9 @@ import type { LoginResponse } from 'aqua-extension';
 import webViewContent from './login.web-view?inline';
 import webViewContentStyle from './login.web-view.scss?inline';
 import { postData, decodeAndSchedule } from './data/handle-token';
-import fetchAssessment from './data/fetch-assessment';
+// import fetchAssessment from './data/fetch-assessment';
 import fetchVersion from './data/fetch-version';
+import fetchBook from './data/fetch-text';
 
 logger.info('UserAuth is importing!');
 
@@ -25,7 +26,8 @@ const webViewProviderType = 'FirstWebView.view';
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   const usernameKey = 'storedUsername';
   const passwordKey = 'storedPassword';
-  const tokenKey = 'storedToken'; 
+  const tokenKey = 'storedToken';
+  const bookkey = 'storedbook';
   logger.info('UserAuth is activating!');
 
   // Register the web view provider
@@ -69,12 +71,21 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
         // const fetchAssessmen = await fetchAssessment(token);
         const fetchversions = await fetchVersion(authToken);
-        const fetchAssessments = await fetchAssessment(authToken);
+        // const fetchAssessments = await fetchAssessment(authToken);
+        const fetchBooks = await fetchBook(authToken);
+        try {
+          console.log('storing the book data in papi', fetchBooks);
+          await papi.storage.writeUserData(token, bookkey, fetchBooks);
+        } catch (error) {
+          console.log(error);
+        }
+
         return {
           loginSucceeded: true,
           message: `Login succeeded: auth token size = ${authToken.length}`,
           token: authToken, // Return the token
-          assessmentData: fetchAssessments,
+          bookData: fetchBooks,
+          // assessmentData: fetchAssessments,
           versionData: fetchversions,
         };
       } catch (error) {

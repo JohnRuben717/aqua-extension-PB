@@ -22,7 +22,7 @@ function Login() {
       localStorage.setItem(usernameKey, username);
       localStorage.setItem(passwordKey, password);
       logger.info(`Storing token in localStorage: ${response.token}`);
-      localStorage.setItem('assessmentData', JSON.stringify(response.assessmentData));
+      localStorage.setItem('bookData', JSON.stringify(response.assessmentData));
       localStorage.setItem('versionData', JSON.stringify(response.versionData));
     }
   };

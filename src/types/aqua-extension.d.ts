@@ -6,9 +6,9 @@ declare module 'aqua-extension' {
     loginSucceeded: boolean;
     message: string;
     token?: string;
-    assessmentData?: unknown; 
+    // assessmentData?: unknown; 
     versionData?: unknown; 
-
+    bookData?: unknown;
   };
 }
 
